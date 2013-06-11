@@ -41,25 +41,27 @@ int main(int argc, char *argv[])
     while(true)
     {
         clientid = accept(m_dServer,&sad,&sadlen);
+        //创建进程
         pid_t tid = fork();
-        if(tid == 0)
+        if(tid == 0)//tid为子进程
         {
-            pid_t mid = getpid();
+            pid_t mid = getpid();//得到子进程PID
             close(m_dServer);
             char buf[512];
             int len;
             while(true)
             {
-                    len = read(clientid,buf,512);
-                    buf[len] = 0;
-                    printf("pid = %d data=%s\n",mid,buf);
-                    //往客服端发送消息
-                    write(clientid,buf,len);
+                //监听clientid端口的消息
+                len = read(clientid,buf,512);
+                buf[len] = 0;
+                printf("pid = %d data=%s\n",mid,buf);
+                //往客服端发送消息
+                write(clientid,buf,len);
             }
         }
-        else
+        else//tid为父进程
         {
-            printf("%d",tid);
+            printf("%d",tid);//得到子进程PID
             close(clientid);
         }
     }
