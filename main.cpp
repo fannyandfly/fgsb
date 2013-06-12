@@ -40,10 +40,9 @@ int main(int argc, char *argv[])
     socklen_t sadlen = sizeof(sad);
     while(true)
     {
-        clientid = accept(m_dServer,&sad,&sadlen);
         //创建进程
         pid_t tid = fork();
-        if(tid == 0)//tid为子进程
+        if(tid == 0)//子进程中
         {
             pid_t mid = getpid();//得到子进程PID
             close(m_dServer);
@@ -59,12 +58,14 @@ int main(int argc, char *argv[])
                 write(clientid,buf,len);
             }
         }
-        else//tid为父进程
+        else//父进程中
         {
-            printf("%d",tid);//得到子进程PID
-            close(clientid);
+            clientid = accept(m_dServer,&sad,&sadlen);
+            //printf("%d",getpid());//得到父进程PID
+            //close(clientid);
         }
     }
+    exit(EXIT_SUCCESS);
     return a.exec();
     return 0;
 }
