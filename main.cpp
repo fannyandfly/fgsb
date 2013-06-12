@@ -13,6 +13,28 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/un.h>
+#include <pthread.h>
+
+int clientid;
+
+void thread(void)
+{
+    printf("This is a thread.\n");
+
+    char buf[512];
+    int len;
+    //监听clientid端口的消息
+    len = read(clientid,buf,512);
+    buf[len] = 0;
+    printf("data=%s\n",buf);
+    //往客服端发送消息
+    write(clientid,buf,len);
+    sleep(1);
+}
+
+static void* thread_callback(void *) {
+    thread();
+}
 
 int main(int argc, char *argv[])
 {
@@ -35,37 +57,50 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    int clientid;
     sockaddr sad;
     socklen_t sadlen = sizeof(sad);
     while(true)
     {
         //创建进程
+//        pid_t pr;
         pid_t tid = fork();
         if(tid == 0)//子进程中
         {
-            pid_t mid = getpid();//得到子进程PID
+//            pid_t mid = getpid();//得到子进程PID
             close(m_dServer);
-            char buf[512];
-            int len;
+
+            pthread_t id;
+            int ret;
+            ret = pthread_create(&id, NULL, thread_callback, NULL);
+            if(ret != 0){
+                printf ("Create pthread error!n");
+                exit (1);
+            }
+//            pthread_join(id,NULL);
+
             while(true)
             {
+/*                char buf[512];
+                int len;
                 //监听clientid端口的消息
                 len = read(clientid,buf,512);
                 buf[len] = 0;
-                printf("pid = %d data=%s\n",mid,buf);
+                printf("data=%s\n",buf);
                 //往客服端发送消息
-                write(clientid,buf,len);
+                write(clientid,buf,len);*/
+                pthread_join(id,NULL);
             }
+//            exit(0);
         }
         else//父进程中
         {
+//            pr = wait(NULL);
             clientid = accept(m_dServer,&sad,&sadlen);
             //printf("%d",getpid());//得到父进程PID
             //close(clientid);
         }
     }
-    exit(EXIT_SUCCESS);
+//    exit(0);
     return a.exec();
     return 0;
 }
