@@ -61,7 +61,7 @@ int main()
         return 0;
     }
 
-    //int state;
+    int state;
     sockaddr sad;
     socklen_t sadlen = sizeof(sad);
     clientid = accept(m_dServer,&sad,&sadlen);
@@ -100,7 +100,7 @@ int main()
         else//父进程中
         {
 //            pr = wait(NULL);
-            //wait(&state);
+            wait(&state);
             //printf("%d",getpid());//得到父进程PID
             close(clientid);
         }
