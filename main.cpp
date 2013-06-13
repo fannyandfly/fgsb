@@ -14,11 +14,14 @@
 #include <stdlib.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <SharedMemory.h>
 
 int clientid;
+SharedMemory MyShareMem;
 
 void thread(void)
 {
+
     printf("This is a thread.\n");
 
     char buf[512];
@@ -29,16 +32,15 @@ void thread(void)
     printf("data=%s\n",buf);
     //往客服端发送消息
     write(clientid,buf,len);
-    sleep(1);
 }
 
 static void* thread_callback(void *) {
     thread();
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-    QCoreApplication a(argc, argv);
+//    QCoreApplication a(argc, argv);
     int m_dServer;
     sockaddr_in m_Addr;
     m_dServer = socket(AF_INET, SOCK_STREAM, 0);
@@ -57,6 +59,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    //int state;
     sockaddr sad;
     socklen_t sadlen = sizeof(sad);
     while(true)
@@ -80,7 +83,7 @@ int main(int argc, char *argv[])
 
             while(true)
             {
-/*                char buf[512];
+    /*          char buf[512];
                 int len;
                 //监听clientid端口的消息
                 len = read(clientid,buf,512);
@@ -89,18 +92,19 @@ int main(int argc, char *argv[])
                 //往客服端发送消息
                 write(clientid,buf,len);*/
                 pthread_join(id,NULL);
+    //          exit(0);
             }
-//            exit(0);
         }
         else//父进程中
         {
 //            pr = wait(NULL);
             clientid = accept(m_dServer,&sad,&sadlen);
+            //wait(&state);
             //printf("%d",getpid());//得到父进程PID
             //close(clientid);
         }
     }
 //    exit(0);
-    return a.exec();
+//    return a.exec();
     return 0;
 }
