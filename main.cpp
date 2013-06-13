@@ -24,14 +24,16 @@ void thread(void)
 
     printf("This is a thread.\n");
 
-    char buf[512];
-    int len;
-    //监听clientid端口的消息
-    len = read(clientid,buf,512);
-    buf[len] = 0;
-    printf("data=%s\n",buf);
-    //往客服端发送消息
-    write(clientid,buf,len);
+    while (true) {
+        char buf[512];
+        int len;
+        //监听clientid端口的消息
+        len = read(clientid,buf,512);
+        buf[len] = 0;
+        printf("data=%s\n",buf);
+        //往客服端发送消息
+        write(clientid,buf,len);
+    }
 }
 
 static void* thread_callback(void *) {
@@ -62,8 +64,9 @@ int main()
     //int state;
     sockaddr sad;
     socklen_t sadlen = sizeof(sad);
-    while(true)
-    {
+    clientid = accept(m_dServer,&sad,&sadlen);
+//    while(true)
+//    {
         //创建进程
 //        pid_t pr;
         pid_t tid = fork();
@@ -81,8 +84,8 @@ int main()
             }
 //            pthread_join(id,NULL);
 
-            while(true)
-            {
+//            while(true)
+//            {
     /*          char buf[512];
                 int len;
                 //监听clientid端口的消息
@@ -92,18 +95,16 @@ int main()
                 //往客服端发送消息
                 write(clientid,buf,len);*/
                 pthread_join(id,NULL);
-    //          exit(0);
-            }
+//            }
         }
         else//父进程中
         {
 //            pr = wait(NULL);
-            clientid = accept(m_dServer,&sad,&sadlen);
             //wait(&state);
             //printf("%d",getpid());//得到父进程PID
-            //close(clientid);
+            close(clientid);
         }
-    }
+//    }
 //    exit(0);
 //    return a.exec();
     return 0;
